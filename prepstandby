@@ -1,0 +1,12 @@
+sudo umount /mnt/roguecheddar
+sudo umount /mnt/tsestorage
+sudo umount /mnt/tsestudies/ramonycajal
+sudo umount /mnt/tsestudies/ebbinghaus
+sudo umount /mnt/tsestudies/wundt
+sudo umount /mnt/tsestudies/helmholtz
+sudo umount /mnt/tsestudies/fechner
+sudo umount /mnt/tsestudies/wertheimer
+sudo umount /mnt/tsestudies/kohler
+sudo umount /mnt/tsestudies/mach
+sudo umount /mnt/tsestudies/koffka
+

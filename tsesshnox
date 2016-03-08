@@ -1,0 +1,5 @@
+if [ $1 = 'tsestorage' ]; then
+	ssh -p 22353 tselab@tsestorage.dartmouth.edu
+else
+	ssh tselab@$1.dartmouth.edu
+fi

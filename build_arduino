@@ -1,0 +1,57 @@
+#!/bin/bash
+#Updated:	2012-01-07
+#
+#License:
+#Copyright 2012 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+#default values
+	HELP=0
+	DEVICE=/dev/ttyACM0
+	ARCH=atmega328p
+	BAUD=115200
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    wrap around for build_arduino.py"
+	echo " "
+	echo " Usage:    $me [-h -d DEVICE -a ARCH -b BAUD] DIR_PROJECT"
+	echo " "
+	echo " Options:"
+	echo "  -h: print this message"
+	echo "  -d: ($DEVICE) the path to the serial device for transfers to"
+	echo "      the Arduino"
+	echo "  -a: ($ARCH) the board architecture"
+	echo "  -b: ($BAUD) the transfer baud rate"
+	echo " "
+	echo " Input:"
+	echo "  DIR_PROJECT: the project directory"
+}
+
+#process options
+	while getopts d:a:b: o; do
+		case "$o" in
+			h)	HELP=1;;
+			d)	DEVICE=$OPTARG;;
+			a)	ARCH=$OPTARG;;
+			b)	BAUD=$OPTARG;;
+			[?])	PrintUsage
+					exit 1;;
+		esac
+	done
+	shift $(($OPTIND-1))
+	export OPTIND=0
+
+if [ $# -eq 0 ] || [ $HELP -eq 1 ]; then
+	PrintUsage
+	exit 1
+fi
+
+DIR_PROJECT=$1
+DIR_ARDUINO=~/programs/arduino
+
+export PATH=$PATH:/home/alex/programs/arduino/hardware/tools
+build_arduino.py -d $DIR_PROJECT -u $DEVICE --arch=$ARCH --baud=$BAUD -i $DIR_ARDUINO/hardware/arduino/variants/standard -W $DIR_ARDUINO/hardware/arduino/cores/arduino --dude-conf=$DIR_ARDUINO/hardware/tools/avrdude.conf

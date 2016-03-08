@@ -1,0 +1,39 @@
+#!/bin/bash
+#Updated:	2009-06-04
+#
+#License:
+#Copyright 2009 Alex Schlegel (schlegel@gmail.com).  This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	echo " Description:	Check the results of recon-all's autorecon1 processing"
+	echo " batch.  The first step confirms a correct transformation to"
+	echo " Talairach space.  The second checks the results of skull stripping"
+	echo " and normalization."
+	echo " "
+	echo " Usage:	$0 <subject>"
+	echo " "
+	echo " Input:"
+	echo "	<subject>	- the subject name"
+}
+
+#check for input
+	if [ -z $1 ]; then
+		PrintUsage
+		exit 1
+	fi
+	
+#input
+	subject=$1
+	
+#check Talairach transformation
+	pause First check the Talairach transformation.  Press any key to continue.
+	tkregister2 --mgz --s $subject --fstal
+#check the results of skull stripping
+	pause Now check the results of skull stripping and normalization.  Add control points if necessary.  Press any key to continue.
+	tkmedit $subject brainmask.mgz -aux T1.mgz -tcl '/mnt/tsestorage/mike/TCL/makesize3.tcl'
+
+#done!
+	echo "Done!"

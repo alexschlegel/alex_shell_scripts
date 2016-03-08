@@ -1,0 +1,88 @@
+#!/bin/bash
+#Updated:	2012-11-27
+#
+#License:
+#Copyright 2012 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    pin the mouse to a location.  unpin with unpinmouse."
+	echo " "
+	echo " Usage:    $me x y OR"
+	echo "           $me p"
+	echo " "
+	echo " Input:"
+	echo "  x - the x position"
+	echo "  y - the y position"
+	echo "  p - one of the following:"
+	echo "     tl: top left"
+	echo "     tm: top middle"
+	echo "     tr: top right"
+	echo "     mr: middle right"
+	echo "     br: bottom right"
+	echo "     bm: bottom middle"
+	echo "     bl: bottom left"
+	echo "     ml: middle left"
+}
+
+fLock=/tmp/pinmouse.lock
+
+#get display dimensions
+	dSize=`xdotool getdisplaygeometry`
+	dW=`echo $dSize | cut -f1 -d" "`
+	dH=`echo $dSize | cut -f2 -d" "`
+
+if [ $# -ne 2 ]; then
+	if [ $# -ne 1 ]; then
+		PrintUsage;
+		
+		exit 1
+	else
+		case $1 in
+			tl)
+				x=1
+				y=1;;
+			tm)
+				x=$((dW/2))
+				y=1;;
+			tr)
+				x=$dW
+				y=1;;
+			mr)
+				x=$dW
+				y=$((dH/2));;
+			br)
+				x=$dW
+				y=$dH;;
+			bm)
+				x=$((dW/2))
+				y=$dH;;
+			bl)
+				x=1
+				y=$dH;;
+			ml)
+				x=1
+				y=$((dH/2));;
+			*)
+				PrintUsage;
+				
+				exit 1;;
+		esac
+	fi
+else
+	x=$1
+	y=$2
+fi
+
+#set the pin lock file
+	if [ ! -f $fLock ]; then
+		touch $fLock
+	fi
+#pin the mouse
+	while [ -f $fLock ]; do
+		xdotool mousemove $x $y
+	done

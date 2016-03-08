@@ -1,0 +1,1 @@
+hpsetdisp.pl $1 "$2" &>/dev/null || ./hpsetdisp.pl $1 "$2"

@@ -1,0 +1,13 @@
+#get the computers to unmount
+	computers=( $(tsecomputers -d "analysis other" $@) ) || exit 1
+
+#unmount each
+	for computer in "${computers[@]}"; do
+		echo "unmounting $computer..."
+		case $computer in
+		"tsestorage")
+			sudo umount /mnt/$computer;;
+		*)
+			sudo umount /mnt/tsestudies/$computer;;
+		esac
+	done

@@ -1,0 +1,55 @@
+#!/bin/bash
+#Updated:	2012-06-08
+#
+#License:
+#Copyright 2012 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    convert gif 2 avi"
+	echo " "
+	echo " Usage:    $me [-r <rate>] file"
+	echo " "
+	echo " Options:"
+	echo "  -r <rate>: (10) specify the playback rate, in fps"
+	echo " "
+	echo " Input:"
+	echo "  file: the path to the file"
+	echo " "
+	echo " Example:"
+	echo "  find . ! -name . -prune -type f -exec gif2avi \"{}\" \;"
+}
+
+#default values
+	rate=10
+
+#process options
+	while getopts r: o; do
+		case "$o" in
+			r)	rate=$OPTARG;;
+			[?])	PrintUsage
+					exit 1;;
+		esac
+	done
+	shift $(($OPTIND-1))
+	export OPTIND=0
+
+nArg=$#
+
+if [ $nArg -eq 1 ]; then
+	#save jpgs
+	mplayer -vo jpeg $1
+	
+	#create avi
+	ffmpeg -r $rate -i %08d.jpg -y -an `echo $1 | sed -e 's/gif$/avi/'`
+	
+	#delete the jpgs
+	ls | grep '[0-9]\{8\}\.jpg' | xargs rm
+else
+	PrintUsage
+	exit 1
+fi

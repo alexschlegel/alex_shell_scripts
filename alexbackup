@@ -1,0 +1,57 @@
+#!/bin/bash
+#Updated:	2015-03-06
+#
+#License:
+#Copyright 2015 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    backup!"
+	echo " "
+	echo " Usage:    $me [-o <output>]"
+	echo " "
+	echo " Options:"
+	echo "  -o output: ('default') the output location (default or naga)"
+	echo " "
+}
+
+#default values
+	output='default'
+
+#process options
+	while getopts o: o; do
+		case "$o" in
+			o)	output=$OPTARG;;
+			[?])	PrintUsage
+					exit 1;;
+		esac
+	done
+	shift $(($OPTIND-1))
+	export OPTIND=0
+
+#get the output directory
+	case "$output" in
+		default)
+			output=/home/alex/backup_dst
+			;;
+		naga)
+			output=/media/alex/Naga/backup
+			;;
+		*)
+			echo "unrecognized output option"
+			exit 1
+			;;
+	esac
+
+t=`date +"%Y%m%d"`
+
+#zenity --question --timeout 5 --text="Start backup?" --display=:0.0
+
+#if [[ $? -ne 1 ]] ; then
+#rsync -arL --no-l -v --delete --exclude-from '/home/alex/code/shell/alexbackup_exclude.txt' /home/alex/backup_src/ $output | grep -E '^deleting|[^/]$|^$' > "/home/alex/temp/backup_$t.log"
+rsync -arL --no-l -v --delete --exclude-from '/home/alex/code/shell/alexbackup_exclude.txt' /home/alex/backup_src/ $output | tee "/home/alex/temp/backup_$t.log"
+#fi

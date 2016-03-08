@@ -1,0 +1,56 @@
+#!/bin/bash
+#Updated:	2015-03-06
+#
+#License:
+#Copyright 2015 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    ssh to a tselab computer"
+	echo " "
+	echo " Usage:    $me [-X] <computer>"
+	echo " "
+	echo " Options:"
+	echo "  -X: use X-forwarding"
+	echo "  <computer>: the name of the computer to ssh into"
+	echo " "
+}
+
+#defaults
+	xforward=0
+
+#process options
+	while getopts X o; do
+		case "$o" in
+			X)	xforward=1;;
+			[?])	PrintUsage
+					exit 1;;
+		esac
+	done
+	shift $(($OPTIND-1))
+	export OPTIND=0
+
+#get the computer to ssh into
+	computer=( $(tsecomputers -s -d "your_mom" $@) ) || exit 1
+	computer=${computer[0]}
+
+#general case values
+	host="$computer.dartmouth.edu"
+	user="tselab"
+	port=22
+#special cases
+	case $computer in
+		tsestorage)
+			port=22353;;
+	esac
+
+#ssh
+	if [ $xforward == 1 ]; then
+		ssh -X -p $port $user@$host
+	else
+		ssh -p $port $user@$host
+	fi

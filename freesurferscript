@@ -1,0 +1,27 @@
+#!/bin/bash
+#Updated:	2012-03-12
+#
+#License:
+#Copyright 2012 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    call a freesurfer-related script after changing the"
+	echo "                 SUBJECTS_DIR
+	echo " "
+	echo " Usage:    $me SUBJECTS_DIR <script>"
+	echo " "
+	echo " Input:"
+	echo "  SUBJECTS_DIR: the new SUBJECTS_DIR value"
+	echo "  <script>:     the script to call after changing SUBJECTS_DIR
+}
+
+export SUBJECTS_DIR=$1
+
+shift
+
+$@

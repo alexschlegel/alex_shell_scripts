@@ -1,0 +1,147 @@
+#!/bin/bash
+#Updated:	2014-12-02
+#
+#License:
+#Copyright 2014 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+get_script_dir ()
+#Taken from:
+#http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
+{
+	SOURCE="${BASH_SOURCE[0]}"
+	while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+	  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+	  SOURCE="$(readlink "$SOURCE")"
+	  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+	done
+	DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+	
+	echo $DIR
+}
+
+add_path ()
+#Taken from:
+#http://superuser.com/questions/39751/add-directory-to-path-if-its-not-already-there
+{
+	EXPORT=0
+	if [ $1 == 'export' ]; then
+		EXPORT=1
+		shift
+	fi
+		
+    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+    	if [ $EXPORT == 1 ]; then
+    		export PATH="${PATH:+"$PATH:"}$1"
+    	else
+    		PATH="${PATH:+"$PATH:"}$1"
+    	fi
+    fi
+}
+
+#make sure my shell scripts work if this is called from a strange environment
+add_path `get_script_dir`
+
+case "$1" in
+"initialize")
+	#http://www.jeffknupp.com/blog/2012/02/09/starting-a-django-project-the-right-way/
+	
+	export RCDIR=/var/www/alexschlegel
+	cd $RCDIR
+	
+	sudo pip3 install virtualenv
+	virtualenv --no-site-packages --distribute -p /usr/bin/python3 $RCDIR/roguecheddarenv
+	
+	source roguecheddar prep
+	roguecheddar update
+	
+	django-admin.py startproject roguecheddar
+	
+	printf "__pycache__/\n*.py[cod]" > .gitignore
+	git init
+	git add .
+	git commit -a -m 'Initial commit of roguecheddar'
+	git remote add origin git@github.com:alexschlegel/roguecheddar.git
+	git push -u origin master
+	
+	cd roguecheddar
+	roguecheddar manage startapp roguecheddarapp
+	cd ..
+	
+	###configure settings
+	
+	roguecheddar manage schemamigration roguecheddarapp --initial
+	roguecheddar manage syncdb
+	roguecheddar manage migrate roguecheddarapp
+	
+	#git checkout -b dev
+	;;
+"prep")
+	export RCDIR=/var/www/alexschlegel
+	cd $RCDIR
+	
+	source ./roguecheddarenv/bin/activate
+	
+	echo "ready to go!"
+	;;
+"manage")
+	shift
+	python $RCDIR/roguecheddar/manage.py $@
+	;;
+"gitupdate")
+	shift
+	git add -A .
+	git commit -a -m "$@"
+	git push -u origin master
+	;;
+"migrate")
+	roguecheddar manage schemamigration roguecheddarapp --auto
+	;;
+"serve")
+	#get the interface to use
+	if [ -n "$2" ]; then
+		INTERFACE=$2
+	else
+		INTERFACE='localhost'
+	fi
+	
+	#get the host
+	case "$INTERFACE" in
+	"localhost")
+		HOST=$INTERFACE
+		;;
+	*)
+		HOST=`getip $INTERFACE`
+		;;
+	esac
+	
+	roguecheddar manage runserver $HOST:8000 --insecure
+	;;
+"update")
+	pip install -r $RCDIR/requirements.txt
+	;;
+"prepare_deployment")
+	#see requirements.txt
+	#roguecheddar manage test roguecheddarapp
+	cd $RCDIR
+	git add -p && git commit
+	git checkout master && git merge dev
+	git push -u origin master
+	;;
+"deploy")
+	#git pull the repository to fechner
+	#roguecheddar manage migrate roguecheddarapp
+	#sync the database?
+	#restart the webserver
+	;;
+"shell")
+	echo "not implemented"
+	;;
+"ssh")
+	echo "not implemented"
+	;;
+*)
+	echo "not recognized"
+	;;
+esac

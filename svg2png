@@ -1,0 +1,47 @@
+#!/bin/bash
+#Updated:	2012-02-14
+#
+#License:
+#Copyright 2012 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    convert svg 2 png"
+	echo " "
+	echo " Usage:    $me [-d <dpi>] file"
+	echo " "
+	echo " Options:"
+	echo "  -d <dpi>: (300) specify the dpi of the output png"
+	echo " "
+	echo " Input:"
+	echo "  file: the path to the file"
+}
+
+#default values
+	dpi=300
+
+#process options
+	while getopts d: o; do
+		case "$o" in
+			d)	dpi=$OPTARG;;
+			[?])	PrintUsage
+					exit 1;;
+		esac
+	done
+	shift $(($OPTIND-1))
+	export OPTIND=0
+
+nArg=$#
+
+if [ $nArg -eq 1 ]; then
+	#convert
+	#eww, ugly  rsvg-convert $1 -d $dpi -o `echo $1 | sed -e 's/svg$/png/'`
+	inkscape $1 -d $dpi --export-png=`echo $1 | sed -e 's/svg$/png/'`
+else
+	PrintUsage
+	exit 1
+fi

@@ -1,0 +1,15 @@
+if [ $# -gt 0 ]; then
+	INTERFACE=$1
+else
+	INTERFACE='external'
+fi
+
+case "$INTERFACE" in
+"external")
+	curl http://ipecho.net/plain
+	echo
+	;;
+*)
+	ifconfig $INTERFACE | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1 }'
+	;;
+esac

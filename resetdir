@@ -1,0 +1,7 @@
+if [ $# -eq 1 ]; then
+	if [ -d $1 ]; then
+		rm -rf $1
+	fi
+	
+	mkdir $1
+fi

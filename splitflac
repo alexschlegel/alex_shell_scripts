@@ -1,0 +1,40 @@
+#!/bin/bash
+#Updated:	2012-07-27
+#
+#License:
+#Copyright 2012 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    split a flac file into separate files"
+	echo " "
+	echo " Usage:    $me <file or directory>"
+	echo " "
+}
+
+if [ $# -eq 0 ]; then
+	PrintUsage
+	exit 1
+fi
+
+if [ -d "$1" ]; then
+	find "$1" -maxdepth 1 -iname "*.flac" -print0 | xargs -L 1 -r0 splitflac
+else
+	strDir=`echo $1 | sed -e s/[^\/]*$//`.
+	strBase=`echo $1 | sed -e s/\.[^\.]*$//`
+	
+	strFlac="$strBase.flac"
+	strCue="$strBase.cue"
+	strSplit=`echo "$strBase-split" | sed -e "s/ /_/g"`
+	
+	strSplitFile=`echo "$strSplit" | sed -e "s/^.*\///g"`
+	strSplitFile=`echo "$strSplitFile" | sed -e "s/\([\[]\)/\\\\\\\\\1/g"`
+	strSplitFile=`echo "$strSplitFile" | sed -e "s/\(]\)/\\\\\\\\\1/g"`
+	
+	cuebreakpoints "$strCue" | shnsplit -o flac -a "$strSplit" "$strFlac"
+	find "$strDir" -maxdepth 1 -iname "$strSplitFile*.flac" | xargs cuetag "$strCue"
+fi

@@ -1,0 +1,44 @@
+#!/bin/bash
+#Updated:	2010-04-13
+#
+#License:
+#Copyright 2010 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    create a blank binary mask"
+	echo " "
+	echo " Usage:    $me <base> <output>"
+	echo " "
+	echo " "
+	echo " Input:"
+	echo "  <base>    - base file"
+	echo "  <output>  - output file"
+}
+
+if [ $# -eq 0 ]; then
+	PrintUsage
+	exit 0;
+fi
+
+#default values
+
+#process options
+# 	while getopts <options>: o; do
+# 		case "$o" in
+# 			<option>)	blah=$OPTARG;;
+# 			[?])	PrintUsage
+# 					exit 1;;
+# 		esac
+# 	done
+# 	shift $(($OPTIND-1))
+# 	export OPTIND=0
+	
+fbase=$1
+foutput=$2
+
+3dcalc -a $fbase -expr "step(0)" -prefix $foutput -overwrite

@@ -1,0 +1,108 @@
+#!/bin/bash
+#Updated:	2015-03-06
+#
+#License:
+#Copyright 2015 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    get/verify tselab computer names"
+	echo " "
+	echo " Usage:    $me [-s -d <default> <computer1> ... <computerN>]"
+	echo " "
+	echo " Options:"
+	echo "  -s: don't ask for verification if no input is given"
+	echo "  <default>="all": the default to return"
+	echo "  <computerK>: the Kth computer to verify"
+	echo " "
+}
+
+existsIn () {
+	local e
+	for e in "${@:2}"
+	do
+		if [ $e == $1 ]; then
+			return 1
+		fi
+	done
+	return 0
+}
+
+#defaults
+	defaultcomputer="all"
+	silent=0
+
+#process options
+	while getopts hsd: o; do
+		case "$o" in
+			h)	PrintUsage
+				exit 0;;
+			s)	silent=1;;
+			d)	defaultcomputer=$OPTARG;;
+			[?])	PrintUsage
+					exit 1;;
+		esac
+	done
+	shift $(($OPTIND-1))
+	export OPTIND=0
+
+analysiscomputers=("fechner" "helmholtz" "wundt" "ebbinghaus" "ramonycajal" "wertheimer")
+experimentcomputers=("koffka" "kohler")
+othercomputers=("tsestorage")
+allcomputers=("${analysiscomputers[@]}" "${experimentcomputers[@]}" "${othercomputers[@]}")
+
+if [ $# == 0 ]; then
+	if [ $silent == 0 ]; then
+		case $defaultcomputer in
+			all)						desc="all tselab computers?";;
+			analysis|experiment|other )	desc="all $defaultcomputer computers?";;
+			*)							desc="all of the following computers: $defaultcomputer?";;
+		esac
+			
+		while true; do
+			read -p "include $desc (y/n)?" yn
+			
+			case $yn in
+				[Yy]* )	break;;
+				[Nn]* )	echo "aborted"
+						exit 1;;
+				* ) >&2 echo "please answer yes or no.";;
+			esac
+		done
+	fi
+	
+	tsecomputers $defaultcomputer
+else
+	computers=("$@")
+	
+	declare -a outcomputers=()
+	for computer in "${computers[@]}"; do
+		case $computer in
+		"analysis")
+			expandedcomputer="${analysiscomputers[@]}";;
+		"experiment")
+			expandedcomputer="${experimentcomputers[@]}";;
+		"other")
+			expandedcomputer="${othercomputers[@]}";;
+		"all")
+			expandedcomputer="${allcomputers[@]}";;
+		*)
+			existsIn "$computer" "${allcomputers[@]}"
+			if [ $? == 0 ]; then
+				>&2 echo "$computer is not a valid tselab computer"
+				exit 1
+			fi
+			
+			expandedcomputer=$computer
+		esac
+		
+		outcomputers=("${outcomputers[@]}" "${expandedcomputer[@]}")
+	done
+	
+	#just the unique computers in the list
+	echo `awk 'BEGIN{RS=ORS=" "}!a[$0]++' <<< "${outcomputers[@]} "`
+fi

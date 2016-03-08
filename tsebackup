@@ -1,0 +1,76 @@
+#!/bin/bash
+#Updated:	2015-03-06
+#
+#License:
+#Copyright 2015 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    backup tselab computers to ilmu"
+	echo " "
+	echo " Usage:    $me [<computer1> ... <computerN>]"
+	echo " "
+	echo " Options:"
+	echo "  <computerK>: the Kth computer to back up"
+	echo " "
+}
+
+#input directory
+dirBaseFrom=/mnt/tsestudies
+#output directory
+dirBaseTo=/media/alex/ilmu/tselab
+
+#process options
+	while getopts h o; do
+		case "$o" in
+			h)	PrintUsage
+				exit 0;;
+			[?])	PrintUsage
+					exit 1;;
+		esac
+	done
+	shift $(($OPTIND-1))
+	export OPTIND=0
+
+
+#get the computers to backup
+	backupcomputers=( $(tsecomputers -d analysis $@) ) || exit 1
+
+#get the log file info
+	t=`date +"%Y%m%d"`
+	
+	pathLog="/home/alex/temp/tsebackup_$t.log"
+	
+	echo "writing log to $pathLog"
+
+#backup!
+	for backupcomputer in "${backupcomputers[@]}"
+	do
+		dirFrom=$dirBaseFrom/$backupcomputer/
+		dirTo=$dirBaseTo/$backupcomputer/
+		
+		#is it mounted?
+			if ! [ "$(ls -A $dirFrom)" ]; then
+				echo "$backupcomputer is not mounted, mounting..."
+				unmount=1
+				
+				tsemount $backupcomputer
+			else
+				unmount=0
+			fi
+		
+		echo "syncing $dirFrom to $dirTo"
+		
+		#rsync -arL --no-l -v --delete $dirFrom $dirTo | tee -a $pathLog
+		rsync -arL --no-l -v --delete $dirFrom $dirTo | tee -a $pathLogFull | grep -E '^deleting|[^/]$'  | grep -v '^file has vanished' 
+		
+		if [ $unmount == 1 ]; then
+			echo "unmounting $backupcomputer"
+			
+			tseumount $backupcomputer
+		fi
+	done

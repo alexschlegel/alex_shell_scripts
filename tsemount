@@ -1,0 +1,13 @@
+#get the computers to mount
+	computers=( $(tsecomputers -d "analysis other" $@) ) || exit 1
+
+#mount each
+	for computer in "${computers[@]}"; do
+		echo "mounting $computer..."
+		case $computer in
+		"tsestorage")
+			sudo mount /mnt/$computer;;
+		*)
+			sudo mount /mnt/tsestudies/$computer;;
+		esac
+	done

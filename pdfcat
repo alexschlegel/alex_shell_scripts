@@ -1,0 +1,34 @@
+#!/bin/bash
+#Updated:	2011-11-06
+#
+#License:
+#Copyright 2011 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    concatenate PDF files"
+	echo " "
+	echo " Usage:    $me <in1> <in2> ... <inN> <out>"
+	echo " "
+	echo " Input:"
+	echo "  <inK> - the Kth input PDF file path"
+	echo "  <out> - the output PDF file path"
+}
+
+#parse the input
+	for var; do
+		shift
+		
+		if [ $# -eq 0 ]; then
+			fout=$var
+		else
+			fin="$fin $var"
+		fi
+		
+	done
+
+gs -q -sPAPERSIZE=letter -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=$fout $fin

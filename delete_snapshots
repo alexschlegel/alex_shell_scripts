@@ -1,0 +1,25 @@
+#!/bin/bash
+
+snapshots=(`zfs list -H -t snapshot | awk '{print $1}' | grep ^$1`)
+nsnap=${#snapshots[@]}
+
+if [ $nsnap -gt 0 ]; then
+	tStart=`date +%s`
+	
+	for (( k=0; k<$nsnap; k++ ))
+	do
+		tNow=`date +%s`
+		tElapsed=$(( tNow - tStart ))
+		
+		if [ $k -le 0 ]; then
+			tRemaining="???"
+		else
+			tRemaining=$(( tElapsed*(nsnap-k)/k ))
+		fi
+		
+		echo "destroying snapshot $((k+1)) of $nsnap ($tRemaining seconds remaining)"
+		zfs destroy ${snapshots[$k]}
+	done
+else
+	echo "no snapshots!"
+fi

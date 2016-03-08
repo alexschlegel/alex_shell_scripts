@@ -1,0 +1,40 @@
+#!/bin/bash
+#Updated:	2011-02-28
+#
+#License:
+#Copyright 2011 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    Decrease the brightness of the LCD display"
+	echo " "
+	echo " Usage:    $me"
+	echo " "
+}
+
+#get the location of the brightness
+	fb=/proc/acpi/video/OVGA/LCD/brightness
+	if [ ! -f $fb ]; then
+		fb=/proc/acpi/video/VGA/LCD/brightness
+		if [ ! -f $fb ]; then
+			echo "Error:  could not find the brightness file"
+			exit 1;
+		fi
+	fi
+#get the allowed brightnesses and the current brightness
+	#allowed
+		bAllowed=( `cat $fb | grep levels | cut -c 9-` )
+		nAllowed=${#bAllowed[*]}
+	#current
+		bCur=`cat $fb | grep current | cut -c 9-`
+#darken the screen to the next level down
+	for (( k=1; k<$nAllowed; k++ ))
+	do
+		if [ $bCur -eq ${bAllowed[$k]} ]; then
+			echo -n ${bAllowed[$k-1]} > $fb
+		fi
+	done

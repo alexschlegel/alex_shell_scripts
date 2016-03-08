@@ -1,0 +1,162 @@
+#!/bin/bash
+#Updated:	2012-06-27
+#
+#License:
+#Copyright 2012 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    run multiple processes in parallel"
+	echo " "
+	echo " Usage:    $me [-n <nfork> -u <upath> -sd] <script_path>"
+	echo " "
+	echo " Options:"
+	echo "  -n: (<# processors>) the number of concurrent processes to call"
+	echo "  -u: (<none>) store the number of finished processes in this file"
+	echo "  -s: be silent"
+	echo "  -d: delete the script and other files after the processes finish"
+	echo " "
+	echo " Input:"
+	echo "  <script_path>: path to a script with one command per line"
+}
+
+#default values
+	nFork=`cat /proc/cpuinfo | grep processor | wc -`
+	strPathFinished=""
+	bSilent=0
+	bDelete=0
+
+#process options
+	while getopts n:u:sd o; do
+		case "$o" in
+			n)	nFork=$OPTARG;;
+			u)	strPathFinished=$OPTARG;;
+			s)	bSilent=1;;
+			d)	bDelete=1;;
+			[?])	PrintUsage
+					exit 1;;
+		esac
+	done
+	shift $(($OPTIND-1))
+	export OPTIND=0
+
+#display usage if we have no inputs
+	if [ $# -eq 0 ]; then
+		PrintUsage
+		exit 1
+	fi
+#make sure the script file exists
+	strPathScript=$1
+	
+	if [ ! -f $strPathScript ]; then
+		echo "Error:  script file does not exist."
+		exit 1
+	fi
+#get the commands to execute
+	while read -r line; do
+		if [ -n "$line" ]; then
+			cmds+=( "$line" );
+		fi
+	done<$strPathScript
+	
+	nCmd=${#cmds[@]}
+#execute the commands
+	pids=()
+	kcmds=()
+	
+	nFinished=0
+	
+	for (( kC=0; kC<$nCmd; kC++ )); do
+		#wait until we can run the next command
+			nPid=${#pids[@]}
+			while [ $nPid -ge $nFork ]; do
+				#wait a second
+					sleep 1
+				#check each pid
+					pidsNew=()
+					kcmdsNew=()
+					for (( kP=0; kP<$nPid; kP++ )); do
+						pid=${pids[kP]}
+						kcmd=${kcmds[kP]}
+						
+						if kill -0 $pid &>/dev/null; then
+						#pid exists
+							pidsNew+=( "$pid" );
+							kcmdsNew+=( "$kcmd" );
+						else
+						#display an update
+							if [ $bSilent  -ne 1 ]; then
+								echo "finished: ${cmds[kcmd]}"
+							fi
+						#update the finished counter
+							nFinished=$(($nFinished + 1))
+								
+							if [ -n $strPathFinished ]; then
+								echo $nFinished > $strPathFinished
+							fi
+						fi
+					done
+					pids=("${pidsNew[@]}")
+					kcmds=("${kcmdsNew[@]}")
+				
+				nPid=${#pids[@]}
+			done
+		#run the command on a new fork
+			cmd=${cmds[kC]}
+			eval $cmd &
+		#add the pid to our list
+			pids+=( "$!" )
+			kcmds+=( "$kC" )
+		
+		if [ $bSilent -ne 1 ]; then
+			echo "running: $cmd"
+		fi
+	done
+	
+	#wait for the commands to finish
+		nPid=${#pids[@]}
+		while [ $nPid -gt 0 ]; do
+			#wait a second
+				sleep 1
+			#check each pid
+				pidsNew=()
+				kcmdsNew=()
+				
+				for (( kP=0; kP<$nPid; kP++ )); do
+					pid=${pids[kP]}
+					kcmd=${kcmds[kP]}
+						
+					if kill -0 $pid &>/dev/null; then
+					#pid exists
+						pidsNew+=( "$pid" );
+						kcmdsNew+=( "$kcmd" );
+					else
+					#display an update
+						if [ $bSilent  -ne 1 ]; then
+							echo "finished: ${cmds[kcmd]}"
+						fi
+					#update the finished counter
+						nFinished=$(($nFinished + 1))
+							
+						if [ -n $strPathFinished ]; then
+							echo $nFinished > $strPathFinished
+						fi
+					fi
+				done
+				pids=("${pidsNew[@]}")
+				kcmds=("${kcmdsNew[@]}")
+			
+			nPid=${#pids[@]}
+		done
+#delete the script
+	if [ $bDelete -eq 1 ]; then
+		rm $strPathScript
+		
+		if [ -n $strPathFinished ]; then
+			rm $strPathFinished
+		fi
+	fi

@@ -1,0 +1,44 @@
+#!/bin/bash
+#Updated:	2010-03-05
+#
+#License:
+#Copyright 2010 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    Convert PAR/REC to NIfTI"
+	echo " "
+	echo " Usage:    $me <dir/file1> ... <dir/fileN>"
+	echo " "
+	echo " Input:"
+	echo "  <dir/fileK>:	the Kth file/directory to convert.  If a directory"
+	echo "                 is specified, the entire tree is searched."
+}
+
+if [ $# -eq 0 ]; then
+	PrintUsage
+else
+	#make sure dcm2nii exists
+	if [ -z `which dcm2nii` ]; then
+		echo "ERROR:  dcm2nii doesn't exist!"
+		exit 1
+	fi
+	
+	opts="-d n -e n -f y -g n -i n -n y -p n -r y -v n -x y"
+	
+	for input; do
+		if [ -d $input ]; then
+			find $input -name \*PAR | xargs par2nii
+		elif [ -f $input ]; then
+			dcm2nii $opts -o `dirname $input` $input
+		else
+			echo "Unrecognized: $input"
+		fi
+	done
+fi
+
+exit 0

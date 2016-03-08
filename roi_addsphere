@@ -1,0 +1,52 @@
+#!/bin/bash
+#Updated:	2010-04-13
+#
+#License:
+#Copyright 2010 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    add a sphere to a binary ROI mask file"
+	echo " "
+	echo " Usage:    $me <input> <output> <radius> <x> <y> <z>"
+	echo " "
+	echo " "
+	echo " Input:"
+	echo "  <input>    - input file"
+	echo "  <output>   - output file"
+	echo "  <radius>   - radius of the sphere to add"
+	echo "  <x>        - x coordinate of the sphere center"
+	echo "  <y>        - y coordinate of the sphere center"
+	echo "  <z>        - z coordinate of the sphere center"
+}
+
+if [ $# -eq 0 ]; then
+	PrintUsage
+	exit 0;
+fi
+
+#default values
+
+#process options
+# 	while getopts <options>: o; do
+# 		case "$o" in
+# 			<option>)	blah=$OPTARG;;
+# 			[?])	PrintUsage
+# 					exit 1;;
+# 		esac
+# 	done
+# 	shift $(($OPTIND-1))
+# 	export OPTIND=0
+	
+finput=$1
+foutput=$2
+radius=$3
+x=$4
+y=$5
+z=$6
+
+3dcalc -a $finput -expr "max(a,step($radius-(x-$x)*(x-$x)-(y-$y)*(y-$y)-(z-$z)*(z-$z)))" -prefix $foutput -overwrite

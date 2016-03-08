@@ -1,0 +1,48 @@
+result()
+{
+	echo "$1: $2"
+}
+teststage()
+{
+	strDirSession=$strDirBase/$1
+	if [ -d "$strDirSession" ]; then
+		if [ -f "$strDirSession/mri/brainmask.mgz" ]; then
+			if [ -f "$strDirSession/surf/rh.inflated.K" ]; then
+				if [ -f "$strDirSession/stats/wmparc.stats" ]; then
+					result "$1" "reconstruction complete"
+				else
+					result "$1" "autorecon3 not complete"
+				fi
+			else
+				result "$1" "autorecon2 not complete"
+			fi
+		else
+			result "$1" "autorecon1 not complete"
+		fi
+	else
+		result "$1" "session doesn't exist"
+	fi
+}
+
+
+#process options
+	strDirBase=$SUBJECTS_DIR
+	
+	OPTIND=0
+	while getopts :d o; do
+		case "$o" in
+			d) strDirBase=$2;
+			   shift $(($OPTIND-1));;
+		esac
+	done
+	shift $(($OPTIND-1))
+
+if [ $# -eq 0 ]; then
+	for session in `getsessions`; do
+		teststage $session
+	done
+else
+	for inputs; do
+		teststage $inputs
+	done
+fi

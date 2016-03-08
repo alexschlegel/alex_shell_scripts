@@ -1,0 +1,58 @@
+#!/bin/bash
+#Updated:	2010-03-07
+#
+#License:
+#Copyright 2010 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    perform a FreeSurfer autorecon step"
+	echo " "
+	echo " Usage:    $me [-o <options>] <step> <session1> ... <sessionN>"
+	echo " "
+	echo " Input:"
+	echo "  <options>:  extra options for the recon-all call"
+	echo "  <step>:     the autorecon step"
+	echo "  <sessionK>: the name of the Kth session to process"
+	echo " "
+}
+
+#default values
+	optExtra=""
+
+#process options
+	while getopts o: o; do
+		case "$o" in
+			o)	optExtra=$OPTARG;;
+			[?])	PrintUsage
+					exit 1;;
+		esac
+	done
+	shift $(($OPTIND-1))
+	export OPTIND=0
+	
+
+if [ $# -gt 1 ]; then
+	#the step to perform
+		kRecon=$1
+		shift
+	#perform the steps
+		NSESSION=$#
+		
+		for (( k=1; k<=$NSESSION; k++ ))
+		do
+			kBusyCode=`isalexbusy -a "FreeSurfer autorecon$kRecon of $1 ($k of $NSESSION)"`
+			
+			recon-all -autorecon$kRecon -s $1 $optExtra
+			
+			shift
+			
+			isalexbusy -r $kBusyCode
+		done
+else
+	PrintUsage
+fi

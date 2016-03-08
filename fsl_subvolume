@@ -1,0 +1,73 @@
+#!/bin/bash
+#Updated:	2011-03-24
+#
+#License:
+#Copyright 2011 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    save a set of subvolumes of a 4D data volume in a new"
+	echo "                 volume"
+	echo " "
+#	echo " Usage:    $me [<options>] <arguments>"
+	echo " Usage:    $me infile outfile kVol1 ... kVolN"
+	echo " "
+#	echo " Options:"
+#	echo "  <options>"
+#	echo " "
+	echo " Input:"
+	echo "  infile:  path to the input volume"
+	echo "  outfile: path to the output volume"
+	echo "  kVolK: the Kth volume to extract (0==1st volume)"
+}
+if [ $# -lt 3 ]; then
+	PrintUsage
+	exit 1
+fi
+
+# #default values
+
+# #process options
+# 	while getopts <options>: o; do
+# 		case "$o" in
+# 			<option>)	blah=$OPTARG;;
+# 			[?])	PrintUsage
+# 					exit 1;;
+# 		esac
+# 	done
+# 	shift $(($OPTIND-1))
+# 	export OPTIND=0
+	
+#input arguments
+	infile=$1
+	outfile=$2
+	
+	shift 2
+	kVol=($@)
+	nVol=${#kVol[@]}
+
+#info
+	echo "merging $nVol volumes from $infile to $outfile"
+
+#create a temporary directory
+	dirTemp=`tempdir`
+#extract the volumes into the temporary directory
+	declare -a roifile
+	
+	for (( k=0; k<$nVol; k++ )); do
+		echo "extracting ${kVol[$k]} (${k+1}/$nVol)"
+		
+		roifile[$k]="$dirTemp/temp${kVol[$k]}.nii.gz"
+		
+		fslroi $infile ${roifile[$k]} ${kVol[$k]} 1
+	done
+#merge the extracted volumes into the output volume
+	fslmerge -t $outfile $roifile
+#remove the temporary directory and files
+	rm -r $dirTemp
+#return
+	exit 0

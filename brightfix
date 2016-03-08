@@ -1,0 +1,30 @@
+#!/bin/bash
+#Updated:	2012-06-27
+#
+#License:
+#Copyright 2012 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    set the brightness level"
+	echo " "
+	echo " Usage:    $me [<brightness>]=1"
+	echo " "
+	echo " Input:"
+	echo "  <brightness>: the brightness level (0->1)"
+}
+
+#default values
+	if [ $# -lt 1 ]; then
+		f=1
+	else
+		f=$1
+	fi
+
+brightness=`echo "($f * 4539)/1" | bc`
+echo $brightness
+sudo su -c "echo $brightness > /sys/class/backlight/intel_backlight/brightness"

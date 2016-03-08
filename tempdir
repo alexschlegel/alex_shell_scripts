@@ -1,0 +1,57 @@
+#!/bin/bash
+#Updated:	2011-03-24
+#
+#License:
+#Copyright 2011 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    get a temporary directory"
+	echo " "
+	echo " Usage:    $me -c [1] -b [/tmp]"
+	echo " "
+	echo " Options:"
+	echo "  -c: 1 to create the directory, 0 to not"
+	echo "  -b: the base directory"
+# 	echo " "
+# 	echo " Input:"
+# 	echo "  <arguments>"
+}
+
+#default values
+	bCreate=1
+	dirBase=/tmp
+
+#process options
+	while getopts c:b: o; do
+		case "$o" in
+			c)	bCreate=$OPTARG;;
+			b)	dirBase=$OPTARG;;
+			[?])	PrintUsage
+					exit 1;;
+		esac
+	done
+	shift $(($OPTIND-1))
+	export OPTIND=0
+	
+#get the temp directory
+	k=0
+	dirName="temp$k"
+	while [ -d $dirBase/$dirName ]; do
+		k=${k+1}
+	done
+	
+	dirTemp=$dirBase/$dirName
+#create it
+	if [ $bCreate -eq 1 ]; then
+		mkdir $dirTemp
+	fi
+#echo it
+	echo $dirTemp
+#return
+	exit 0
+	

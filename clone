@@ -1,0 +1,1 @@
+rsync -vrptgoDL --delete $@

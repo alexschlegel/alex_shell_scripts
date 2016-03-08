@@ -1,0 +1,41 @@
+#!/bin/bash
+#Updated:	2010-04-01
+#
+#License:
+#Copyright 2010 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    show a status message"
+	echo " "
+	echo " Usage:    $me msg"
+	echo " "
+	echo " "
+	echo " Input:"
+	echo "  msg	- the message to show"
+}
+
+#default values
+
+#process options
+# 	while getopts <options>: o; do
+# 		case "$o" in
+# 			<option>)	blah=$OPTARG;;
+# 			[?])	PrintUsage
+# 					exit 1;;
+# 		esac
+# 	done
+# 	shift $(($OPTIND-1))
+# 	export OPTIND=0
+
+#input
+	msg=$1
+
+#get the date
+	now=`date +"%Y-%m-%d %H:%M:%S"`
+#display the status
+	echo "$now: $msg"

@@ -1,0 +1,39 @@
+#!/bin/bash
+#Updated:	2011-03-22
+#
+#License:
+#Copyright 2011 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	me=`basename $0`
+	
+	echo " Description:    replace text in a set of files"
+	echo " "
+	echo " Usage:    $me [dir=.] files search replace"
+	echo " "
+	echo " Input:"
+	echo "  dir     - the directory tree to search"
+	echo "  files   - the -name argument to the find command"
+	echo "  search  - the regexp search pattern"
+	echo "  replace - the regexp replace pattern"
+}
+
+if [ $# -eq 4 ]; then
+	strDir=$1
+	strFiles=$2
+	strSearch=$3
+	strReplace=$4
+elif [ $# -eq 3 ]; then
+	strDir="."
+	strFiles=$1
+	strSearch=$2
+	strReplace=$3
+else
+	PrintUsage
+	exit 1
+fi
+
+find $strDir -name "$strFiles" | xargs perl -w -i -p -e "s/$strSearch/$strReplace/g"

@@ -1,0 +1,13 @@
+basedir=/tmp
+
+mvto=temp
+k=0
+
+while [ -d "$basedir/$mvto$k" ]; do
+let k=k+1
+done
+
+mvto=$basedir/$mvto$k
+
+mv $1 $mvto
+rmdir $mvto

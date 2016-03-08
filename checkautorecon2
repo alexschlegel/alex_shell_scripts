@@ -1,0 +1,43 @@
+#!/bin/bash
+#Updated:	2009-06-04
+#
+#License:
+#Copyright 2009 Alex Schlegel (schlegel@gmail.com).  This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+	echo " Description:	Check the results of recon-all's autorecon2 processing"
+	echo " batch, specifically the white and gray matter boundaries."
+	echo " "
+	echo " Usage:	$0 <subject>"
+	echo " "
+	echo " Input:"
+	echo "	<subject>	- the subject name"
+}
+
+#check for input
+	if [ -z $1 ]; then
+		PrintUsage
+		exit 1
+	fi
+	
+#input
+	subject=$1
+	
+#check white/gray matter boundaries
+	pause "Check the white matter (yellow line) and gray matter (red line) boundaries.  Press any key to continue."
+	tkmedit $subject brainmask.mgz lh.white -aux wm.mgz -aux-surface rh.white
+#check the surfaces
+	pause "Check the reconstructed surfaces.  Press any key to continue."
+	echo "- lh white"
+	tksurfer $subject lh white
+	echo "- lh pial"
+	tksurfer $subject lh pial
+	echo "- rh white"
+	tksurfer $subject rh white
+	echo "- rh pial"
+	tksurfer $subject rh pial
+#done!
+	echo "Done!"

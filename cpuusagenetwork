@@ -1,0 +1,27 @@
+#!/bin/bash
+#Updated:	2013-02-27
+#
+#License:
+#Copyright 2013 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+		me=`basename $0`
+		
+		echo " Description:    show CPU usage for multiple computers"
+		echo "                 (passwordless SSH must be set up for each)"
+		echo " "
+		echo " Usage:    $me <user>@<address>"
+		echo " "
+		echo " Input:"
+		echo "  user: the computer user"
+		echo "  address: the computer address"
+	}
+
+addr=`echo $1 | sed -r "s/.*@(.*)/\1/"`
+
+cpu=`ssh $1 mpstat -P ALL 1 1 | grep -E -e "^Average:[ ]+[0-9]" | sed -r "s/^.* ([0-9.]+)/\1/g" | awk '{ print 100-$1}'`
+
+echo $addr: $cpu
