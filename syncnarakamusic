@@ -1,0 +1,16 @@
+t=`date +"%Y%m%d"`
+
+#mount naraka
+	narakaMounted=1
+	if [ ! -d "/mnt/naraka/home" ]; then
+		narakaMounted=0
+		sudo mount /mnt/naraka
+	fi
+
+#sync the music
+	rsync -arzvL --delete /home/alex/Music/ /mnt/naraka/home/alex/Music | tee "/home/alex/temp/narakamusic_$t.log" 
+
+#unmout naraka
+	if [ $narakaMounted == 0 ]; then
+		sudo umount /mnt/naraka
+	fi
