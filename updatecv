@@ -1,4 +1,5 @@
 sudo mount /mnt/www/roguecheddar
 cp /home/alex/work/cv/cv_alex_schlegel.pdf /mnt/www/roguecheddar/roguecheddar.com/sites/default/files/cv_alex_schlegel.pdf
+cp /home/alex/work/cv/cv_alex_schlegel.pdf /var/www/alexschlegel/roguecheddar/roguecheddarapp/static/roguecheddarapp/files/cv_alex_schlegel.pdf
 cp /home/alex/work/cv/cv_alex_schlegel.pdf /mnt/www/roguecheddar/alexschlegel.com/roguecheddar/static/roguecheddarapp/files/cv_alex_schlegel.pdf
 sudo umount /mnt/www/roguecheddar

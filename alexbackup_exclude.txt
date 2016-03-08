@@ -6,3 +6,5 @@ studies/_old/*/data
 studies/_old/*/analysis
 studies/_finished/*/data
 studies/_finished/*/analysis
+*/.git
+*/.svn

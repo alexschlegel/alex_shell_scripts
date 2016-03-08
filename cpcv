@@ -1,3 +1,0 @@
-sudo mount /mnt/www/roguecheddar
-cp /home/alex/work/cv/cv_alex_schlegel.pdf /mnt/www/roguecheddar/roguecheddar.com/sites/default/files/cv_alex_schlegel.pdf
-sudo umount /mnt/www/roguecheddar
