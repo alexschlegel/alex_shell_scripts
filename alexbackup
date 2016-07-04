@@ -15,7 +15,7 @@ PrintUsage()
 	echo " Usage:    $me [-o <output>]"
 	echo " "
 	echo " Options:"
-	echo "  -o output: ('default') the output location (default or naga)"
+	echo "  -o output: ('default') the output location (default, naga, ilmu)"
 	echo " "
 }
 
@@ -40,6 +40,9 @@ PrintUsage()
 			;;
 		naga)
 			output=/media/alex/Naga/backup
+			;;
+		ilmu)
+			output=/media/alex/ilmu/backup
 			;;
 		*)
 			echo "unrecognized output option"
