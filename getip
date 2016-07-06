@@ -6,8 +6,8 @@ fi
 
 case "$INTERFACE" in
 "external")
-	curl http://ipecho.net/plain
-	echo
+	wget -q -O - http://ipecho.net/plain
+        echo
 	;;
 *)
 	ifconfig $INTERFACE | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1 }'
