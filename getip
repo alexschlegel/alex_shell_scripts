@@ -6,7 +6,7 @@ fi
 
 case "$INTERFACE" in
 "external")
-	wget -q -O - http://ipecho.net/plain
+	curl -s http://ipecho.net/plain
         echo
 	;;
 *)

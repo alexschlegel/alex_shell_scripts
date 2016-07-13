@@ -1,3 +1,3 @@
-wget -q -O - "http://www.alexschlegel.com/data/?type=ipaddress&name=chiron"
+curl -s "http://www.alexschlegel.com/data/?type=ipaddress&name=chiron"
 echo
 
