@@ -1,0 +1,39 @@
+#!/bin/bash
+#Updated:    2016-07-06
+#
+#License:
+#Copyright 2011 Alex Schlegel (schlegel@gmail.com   This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+        me=`basename $0`
+
+        echo " Description:    scp to/from chiron"
+        echo " "
+        echo " Usage:    $me -r <source> <dest>"
+        echo " "
+        echo " Options:"
+        echo "  -r: include to go in reverse direction (from chiron to current)"
+}
+
+#default values
+    REVERSE=0
+
+#process options
+    while getopts r o; do
+        case "$o" in
+            r)      REVERSE=1;;
+            [?])    PrintUsage
+                    exit 1;;
+        esac
+    done
+    shift $(($OPTIND-1))
+    export OPTIND=0
+
+if [ $REVERSE -eq 1 ]; then
+    scp alex@`chironip`:$1 $2
+else
+    scp $1 alex@`chironip`:$2
+fi

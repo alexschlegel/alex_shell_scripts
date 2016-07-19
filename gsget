@@ -1,0 +1,20 @@
+LS_PRE=$(ls)
+
+gssearch $@
+
+LS_POST=$(ls)
+
+LS_DIFF=
+for fpost in $LS_POST; do
+    skip=0
+    for fpre in $LS_PRE; do
+        [[ $fpost == $fpre ]] && { skip=1; break; }
+    done
+    
+    if [ $skip -eq 0 ]; then
+        LS_DIFF=$fpost
+        break
+    fi
+done
+
+echo "`pwd`/$LS_DIFF"

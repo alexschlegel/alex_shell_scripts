@@ -1,0 +1,3 @@
+curl -s "http://www.alexschlegel.com/data/?type=ipaddress&name=chiron"
+echo
+

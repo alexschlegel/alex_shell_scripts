@@ -1,0 +1,3 @@
+URL=$@
+URL=${URL// /+}
+lynx --accept_all_cookies "https://scholar.google.com/scholar?hl=en&q=$URL"
