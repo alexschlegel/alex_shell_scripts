@@ -1,0 +1,42 @@
+#!/bin/bash
+#Updated:   2015-12-28
+#
+#License:
+#Copyright 2015 Alex Schlegel (schlegel@gmail.com). This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License. See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+PrintUsage()
+{
+    me=`basename $0`
+    
+    echo " Description:    home automation!"
+    echo " "
+    echo " Usage:    $me <action> [<subaction>]"
+    echo " "
+    echo " <action>:"
+    echo "  living_room"
+    echo "   on: turn on"
+    echo "   off: turn off"
+    echo " "
+}
+
+
+#what is the action?
+action="$1"
+subaction="$2"
+shift
+
+case $action in
+"living_room")
+    #192.168.0.110
+    switches=("Living Room Light" "Living Room Wall")
+    for switch in "${switches[@]}"; do
+        wemo switch "$switch" $subaction &
+    done
+    ;;
+*)
+    PrintUsage
+    exit 1
+    ;;
+esac
