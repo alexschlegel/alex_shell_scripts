@@ -49,7 +49,7 @@ error()
         iot)
             IOT_SHELL_DIR=~/code/shell/iot
             add_to_path $IOT_SHELL_DIR
-            cd ~/code/projects
+            cd ~/art/code
             
             #parse the options
                 #defaults

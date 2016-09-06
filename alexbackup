@@ -16,16 +16,22 @@ PrintUsage()
 	echo " "
 	echo " Options:"
 	echo "  -o output: ('default') the output location (default, naga, ilmu)"
+	echo "  -r restore rather than backup"
+	echo "  -t test (dry run)"
 	echo " "
 }
 
 #default values
 	output='default'
+	do_restore=0
+	do_test=0
 
 #process options
-	while getopts o: o; do
+	while getopts o:rt o; do
 		case "$o" in
 			o)	output=$OPTARG;;
+			r)	do_restore=1;;
+			t)	do_test=1;;
 			[?])	PrintUsage
 					exit 1;;
 		esac
@@ -54,7 +60,15 @@ t=`date +"%Y%m%d"`
 
 #zenity --question --timeout 5 --text="Start backup?" --display=:0.0
 
-#if [[ $? -ne 1 ]] ; then
-#rsync -arL --no-l -v --delete --exclude-from '/home/alex/code/shell/alexbackup_exclude.txt' /home/alex/backup_src/ $output | grep -E '^deleting|[^/]$|^$' > "/home/alex/temp/backup_$t.log"
-rsync -arL --no-l -v --delete --exclude-from '/home/alex/code/shell/alexbackup_exclude.txt' /home/alex/backup_src/ $output | tee "/home/alex/temp/backup_$t.log"
-#fi
+extra_options=''
+
+if [[ $do_test -eq 1 ]] ; then
+	extra_options="$extra_options --dry-run"
+fi
+
+if [[ $do_restore -eq 1 ]] ; then
+	echo 'not implemented'
+	exit 1
+else
+	rsync -arLv --no-l --delete $extra_options --exclude-from '/home/alex/code/shell/alexbackup_exclude.txt' /home/alex/backup_src/ $output | tee "/home/alex/temp/backup_$t.log"
+fi
