@@ -1,0 +1,39 @@
+#!/bin/bash
+#Updated: 2016-08-21
+#
+#License:
+#Copyright 2016 Alex Schlegel (schlegel@gmail.com). This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License. See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+print_usage()
+{
+    echo " Description: start the serial monitor"
+    echo " "
+    echo " Usage: monitor -r <baud_rate> -p <serial_port>"
+    echo " "
+    echo " Options:"
+    echo "  -r <baud_rate>: (\$BAUD_RATE) the baud rate to use"
+    echo "  -p <serial_port>: (\$SERIAL_PORT) the serial port to connect to"
+    echo " "
+}
+
+#process options
+    while getopts r:p:h o; do
+        case "$o" in
+            r)      BAUD_RATE=$OPTARG;;
+            p)      SERIAL_PORT=$OPTARG;;
+            h)      print_usage
+                    exit 0;;
+            [?])    print_usage
+                    exit 1;;
+        esac
+    done
+    shift 0
+    export OPTIND=0
+
+#construct the options string
+    OPTIONS="-b $BAUD_RATE -p $SERIAL_PORT"
+
+#monitor!
+    platformio serialports monitor $OPTIONS

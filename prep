@@ -1,0 +1,125 @@
+#!/bin/bash
+#Updated: 2016-08-21
+#
+#License:
+#Copyright 2016 Alex Schlegel (schlegel@gmail.com). This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License. See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+#make sure the script is being sourced
+if [[ $_ == $0 ]]; then
+    echo 'script must be sourced'
+    exit 1
+fi
+
+print_usage()
+{
+    echo " Description: prepare a work environment"
+    echo " "
+    echo " Usage: prep <environment> <options>"
+    
+    echo " Environment-specific options:"
+    echo "    iot:"
+    echo "      -b/--board <name>   set the default board name (see platformio boards)"
+    echo "      -p/--serial_port <name>    the default serial port to use"
+    echo "      -r/--baud_rate <rate>    the default baud rate to use"
+    echo " "
+}
+
+add_to_path()
+{
+    DIR_TO_ADD=$1
+    [[ ":$PATH:" != *":$DIR_TO_ADD:"* ]] && export PATH="${PATH}:$DIR_TO_ADD"
+}
+
+error()
+{
+    message=$1
+    echo "error: $1"
+    echo ""
+    print_usage
+    return 1;
+}
+
+#prep the environment
+    environment=$1
+    shift
+    
+    case "$environment" in
+        iot)
+            IOT_SHELL_DIR=~/code/shell/iot
+            add_to_path $IOT_SHELL_DIR
+            cd ~/code/projects
+            
+            #parse the options
+                #defaults
+                    BOARD=""
+                    BAUD_RATE=""
+                    SERIAL_PORT=""
+                
+                while [[ $# -gt 0 ]]
+                do
+                    key=$1
+                    case $key in
+                        -b|--board)
+                            if [ $# -eq 1 ]; then
+                                error 'you must specify a board'
+                            fi
+                            BOARD="$2"
+                            shift
+                            ;;
+                        -r|--baud_rate)
+                            if [ $# -eq 1 ]; then
+                                error 'you must specify a baud rate'
+                            fi
+                            BAUD_RATE="$2"
+                            shift
+                            ;;
+                        -p|--serial_port)
+                            if [ $# -eq 1 ]; then
+                                error 'you must specify a serial port'
+                            fi
+                            SERIAL_PORT="$2"
+                            shift
+                            ;;
+                        -h|--help)
+                            print_usage
+                            return 0;;
+                        *)
+                            error "'$key' is an invalid option";;
+                    esac
+                    shift
+                done
+            
+            #get/set the default board
+            if [ "$BOARD" == "" ]; then
+                BOARD=`cat "$IOT_SHELL_DIR/.variables/board"`
+            else
+                echo $BOARD > "$IOT_SHELL_DIR/.variables/board"
+            fi
+            export BOARD
+            
+            #get/set the default baud rate
+            if [ "$BAUD_RATE" == "" ]; then
+                BAUD_RATE=`cat "$IOT_SHELL_DIR/.variables/baud_rate"`
+            else
+                echo $BAUD_RATE > "$IOT_SHELL_DIR/.variables/baud_rate"
+            fi
+            export BAUD_RATE
+            
+            #get/set the default serial port
+            if [ "$SERIAL_PORT" == "" ]; then
+                SERIAL_PORT=`cat "$IOT_SHELL_DIR/.variables/serial_port"`
+            else
+                echo $SERIAL_PORT > "$IOT_SHELL_DIR/.variables/serial_port"
+            fi
+            export SERIAL_PORT
+            
+            #aliases
+            alias b="build"
+            alias m="monitor"
+            alias bm="build && monitor"
+            ;;
+        *)
+            error "invalid environment";;
+    esac

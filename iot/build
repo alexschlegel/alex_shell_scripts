@@ -1,0 +1,47 @@
+#!/bin/bash
+#Updated: 2016-08-21
+#
+#License:
+#Copyright 2016 Alex Schlegel (schlegel@gmail.com). This work is licensed under
+#a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License. See
+#http://creativecommons.org/licenses/by-nc-sa/3.0/ for more information.
+
+print_usage()
+{
+    echo " Description: build and upload the current platformio project to a device"
+    echo " "
+    echo " Usage: build -e <board> -n"
+    echo " "
+    echo " Options:"
+    echo "  -e <board>: (\$BOARD) the target device (see platformio boards)"
+    echo "  -n: don't upload"
+    echo " "
+}
+
+#default values
+    TARGET_BOARD=$BOARD
+    UPLOAD=1
+
+#process options
+    while getopts e:nh o; do
+        case "$o" in
+            e)      TARGET_BOARD=$OPTARG;;
+            n)      UPLOAD=0;;
+            h)      print_usage
+                    exit 0;;
+            [?])    print_usage
+                    exit 1;;
+        esac
+    done
+    shift 0
+    export OPTIND=0
+
+#construct the options string
+    OPTIONS="-e $TARGET_BOARD"
+    
+    if [ $UPLOAD -eq 1 ]; then
+        OPTIONS="$OPTIONS -t upload"
+    fi
+
+#build!
+    platformio run $OPTIONS
